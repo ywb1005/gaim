@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Hello APP</title>
+    <link rel="stylesheet" type="text/css" href="./css/api.css" />
+    <link rel="stylesheet" type="text/css" href="./css/aui.css" />
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+        }
+
+        #wrap {
+            height: 100%;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-flex-flow: column;
+        }
+
+        #header {
+            text-align: center;
+            background-color: #03a9f4;
+            color: #fff;
+            height: 60px;
+            width: 100%;
+        }
+
+        #header h1 {
+            font-size: 20px;
+            line-height: 20px;
+            margin: 0em;
+            color: #fff;
+        }
+
+        #main {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            z-index: 111;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrap">
+        <div id="header">
+            <h1>尬聊</h1>
+        </div>
+        <div id="main">
+
+        </div>
+        <div id="footer">
+            <footer class="aui-bar aui-bar-tab" style="border-top:1px solid #eee">
+                <div class="aui-bar-tab-item aui-active" tapmode onclick="openFrame(0)" id="message">
+                    <i class="aui-iconfont aui-icon-comment"></i>
+                    <div class="aui-bar-tab-label">消息</div>
+                </div>
+                <div class="aui-bar-tab-item" tapmode onclick="openFrame(1)" id="friends">
+                    <i class="aui-iconfont aui-icon-my"></i>
+                    <div class="aui-bar-tab-label">联系人</div>
+                </div>
+                <div class="aui-bar-tab-item" tapmode onclick="openFrame(2)" id="settings">
+                    <i class="aui-iconfont aui-icon-gear"></i>
+                    <div class="aui-bar-tab-label">设置</div>
+                </div>
+            </footer>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+      // api.setStatusBarStyle({
+      //     style: 'dark'
+      //   });
+        //输出Log，Log将显示在APICloud Studio控制台
+        var header = $api.byId('header');
+        //适配iOS7+，Android4.4+状态栏沉浸式效果，详见config文档statusBarAppearance字段
+        $api.fixStatusBar(header);
+        //动态计算header的高度，因iOS7+和Android4.4+上支持沉浸式效果，
+        //因此header的实际高度可能为css样式中声明的44px加上设备状态栏高度
+        //其中，IOS状态栏高度为20px，Android为25px
+        var headerH = $api.offset(header).h;
+        //footer`高度为css样式中声明的30px
+        var footerH = 51;
+        //frame的高度为当前window高度减去header和footer的高度
+
+        var frameH = api.winHeight - headerH - footerH;
+        api.openFrameGroup({
+            name: 'fGroup',
+            scrollEnabled: false,
+            rect: {
+                x: 0,
+                y: headerH,
+                w: 'auto',
+                h: frameH
+            },
+            index: 0,
+            frames: [
+              {
+                  name: 'message',
+                  url: 'html/message.html',
+                  bounces: true,
+                  scrollEnabled: true,
+                  softInputMode: 'auto'
+              },
+              {
+                name: 'main',
+                url: 'html/main.html',
+                bounces: true,
+                scrollEnabled: true,
+                softInputMode: 'auto'
+            }]
+        }, function(ret, err) {
+            frameIndex = ret.index
+        });
+    };
+
+    function openFrame(index) {
+        var active = '';
+        switch (frameIndex) {
+            case 0:
+                active = 'message';
+                break;
+            case 1:
+                active = 'friends';
+                break;
+            default:
+        }
+        if (index === frameIndex) {
+            return 0;
+        } else {
+            frameIndex = index
+        }
+        switch (index) {
+            case 0:
+                switchClass(active, 'message');
+                break;
+            case 1:
+                switchClass(active, 'friends');
+                break;
+            default:
+        }
+        api.setFrameGroupIndex({
+            name: 'fGroup',
+            index: index,
+            scroll: true,
+            reload: true
+        });
+    }
+    function switchClass(active, next) {
+      var from = document.getElementById(active);
+      var to   = document.getElementById(next);
+      from.classList.remove('aui-active');
+      to.classList.add('aui-active');
+    }
+</script>
+
+</html>
